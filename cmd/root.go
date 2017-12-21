@@ -20,9 +20,6 @@ for GitHub Organizations and GitHub Enterprise administrators
 
 Developement takes place at https://github.com/helaili/octocli.
 Pull Requests are welcomed!`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -37,9 +34,6 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.octocli.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "github.com", "Hostname of the GitHub Enterprise server. Using github.com if omitted")
@@ -49,10 +43,6 @@ func init() {
 	if os.Getenv("GITHUB_AUTH_TOKEN") == "" {
 		rootCmd.MarkPersistentFlagRequired("token")
 	}
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -80,6 +70,4 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-
-
 }
