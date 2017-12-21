@@ -41,11 +41,14 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.octocli.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", os.Getenv("GITHUB_AUTH_TOKEN"), "personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
+	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "github.com", "Hostname of the GitHub Enterprise server. Using github.com if omitted")
 	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
   viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))
 
+	if os.Getenv("GITHUB_AUTH_TOKEN") == "" {
+		rootCmd.MarkPersistentFlagRequired("token")
+	}
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
@@ -71,9 +74,12 @@ func initConfig() {
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
+	viper.BindEnv("token", "GITHUB_AUTH_TOKEN")
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+
+
 }
