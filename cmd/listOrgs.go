@@ -19,9 +19,9 @@ which the specified user belongs to`,
 		if server == "github.com" && user == "" {
 			log.Fatal("Browsing all the organizations on github.com is not allowed.")
 		} else if user != "" {
-			api.GetUserOrgs(server, viper.GetString("token"), user, "")
+			api.GetUserOrgs(server, viper.GetString("token"), user)
 		} else {
-			//TODO: implement retrival of all orgs on GHE
+			api.GetAllOrgs(server, viper.GetString("token"))
 		}
 	},
 }
