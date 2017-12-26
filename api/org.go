@@ -23,13 +23,13 @@ var userOrgsQuery = `query($login:String!, $count:Int!, $cursor:String) {
   }
 }`
 
-type userOrgsQueryParams struct {
+type UserOrgsQueryParams struct {
   Login string `json:"login"`
   Count int `json:"count"`
   Cursor string `json:"cursor,omitempty"`
 }
 
-type userOrgsResponse struct {
+type UserOrgsResponse struct {
   Data struct {
     User struct {
        Organizations struct {
@@ -48,9 +48,22 @@ type userOrgsResponse struct {
   } `json:"errors"`
 }
 
-type orgResponse struct {
+type OrgResponse struct {
   Login string `json:"login"`
   Id int `json:"id"`
+}
+
+type OrgResponseDecoder struct {}
+
+func (org OrgResponseDecoder) Decode(decoder *json.Decoder) error {
+  var orgs []OrgResponse
+  decodeError := decoder.Decode(&orgs)
+  if decodeError == nil {
+    for _, org := range orgs {
+      fmt.Println(org)
+    }
+  }
+  return decodeError
 }
 
 var linkListRegex = regexp.MustCompile("<([A-Za-z0-9\\:\\.\\/\\=\\?\\{\\}]*)>; rel=\"([A-Za-z]*)\"")
@@ -61,47 +74,8 @@ func GetAllOrgs(server, token string) {
 }
 
 func getAllOrgs(apiURL, token string) {
-  resp, err := DoRestApiCall(apiURL, token)
-  if err != nil {
-    log.Fatal("Error while querying the server.", err)
-    return
-  } else if resp.StatusCode != http.StatusOK {
-    log.Fatalf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
-  }
-
-  // Close when method returns
-  defer resp.Body.Close()
-
-  var orgs []orgResponse
-  // Decode the JSON array
-  decodeError := json.NewDecoder(resp.Body).Decode(&orgs)
-  if decodeError != nil {
-    log.Fatal("Error while decoding the server response.", decodeError)
-    return
-  } else  {
-    for _, org := range  orgs {
-      fmt.Printf("Name: %s\n", org.Login)
-    }
-
-    // Working the pagination as described in https://developer.github.com/guides/traversing-with-pagination/
-    // linkHeader is '<https://gheserver.com/api/v3/users?since=35>; rel="next", <https://gheserver.com/api/v3/users{?since}>; rel="first"'
-    linkHeader := resp.Header.Get("Link")
-
-    if linkHeader != "" {
-      linkArray := linkListRegex.FindAllStringSubmatch(linkHeader, -1)
-      /*
-      linkArray := [["<https://gheserver.com/api/v3/users?since=35>; rel=next", "https://gheserver.com/api/v3/users?since=35", "next"],
-       ["<https://gheserver.com/api/v3/users{?since}>; rel="first", "https://gheserver.com/api/v3/users{?since}, "first"]]
-      */
-      for _, linkElement := range linkArray {
-        if linkElement[2] == "next" {
-          getAllOrgs(linkElement[1], token)
-          return
-        }
-	    }
-    }
-  }
-
+  orgDecoder := OrgResponseDecoder{}
+  DoRestApiCall(apiURL, token, orgDecoder)
 }
 
 func GetUserOrgs(server, token, user string) {
@@ -110,7 +84,7 @@ func GetUserOrgs(server, token, user string) {
 
 
 func getUserOrgs(server, token, user, cursor string) {
-  params := userOrgsQueryParams{Login: user, Count: 100, Cursor: cursor}
+  params := UserOrgsQueryParams{Login: user, Count: 100, Cursor: cursor}
   query := GraphQLQuery{userOrgsQuery, params}
 
   resp, err := DoGraphQLApiCall(server, token, query)
@@ -124,7 +98,7 @@ func getUserOrgs(server, token, user, cursor string) {
   // Close when method returns
   defer resp.Body.Close()
 
-  var data userOrgsResponse
+  var data UserOrgsResponse
   // Decode the JSON array
   decodeError := json.NewDecoder(resp.Body).Decode(&data)
   if decodeError != nil {
