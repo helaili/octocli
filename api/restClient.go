@@ -3,18 +3,12 @@ package api
 import (
   "fmt"
   "log"
-  "bytes"
   "net/http"
   "encoding/json"
+  "regexp"
 )
 
-func GetGraphQLApiURL(server string) (string) {
-  if server == "github.com" {
-    return fmt.Sprintf("https://api.%s/graphql", server)
-  } else {
-    return fmt.Sprintf("https://%s/api/graphql", server)
-  }
-}
+var linkListRegex = regexp.MustCompile("<([A-Za-z0-9\\:\\.\\/\\=\\?\\{\\}]*)>; rel=\"([A-Za-z]*)\"")
 
 func GetRestApiURL(server, restPath string) (string) {
   if server == "github.com" {
@@ -24,7 +18,7 @@ func GetRestApiURL(server, restPath string) (string) {
   }
 }
 
-func DoRestApiCall(apiURL, token string, resultDecoder ResponseDecoder) {
+func DoRestApiCall(apiURL, token string, responseHandler RestResponseHandler) {
   req, err := http.NewRequest("GET", apiURL, nil)
   if err != nil {
     log.Fatal("Failed while building the HTTP client: ", err)
@@ -47,13 +41,15 @@ func DoRestApiCall(apiURL, token string, resultDecoder ResponseDecoder) {
   // Close when method returns
   defer resp.Body.Close()
 
+  var jsonObj []map[string]interface{}
+
   // Decode the JSON array
-  decoder := json.NewDecoder(resp.Body)
-  decodeError := resultDecoder.Decode(decoder)
+  decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
   if decodeError != nil {
     log.Fatal("Error while decoding the server response.", decodeError)
     return
   } else  {
+    responseHandler.Print(jsonObj)
     // Working the pagination as described in https://developer.github.com/guides/traversing-with-pagination/
     // linkHeader is '<https://gheserver.com/api/v3/users?since=35>; rel="next", <https://gheserver.com/api/v3/users{?since}>; rel="first"'
     linkHeader := resp.Header.Get("Link")
@@ -67,27 +63,10 @@ func DoRestApiCall(apiURL, token string, resultDecoder ResponseDecoder) {
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          DoRestApiCall(linkElement[1], token, resultDecoder)
+          DoRestApiCall(linkElement[1], token, responseHandler)
           return
         }
 	    }
     }
   }
-}
-
-
-func DoGraphQLApiCall(server, token string, query GraphQLQuery) (response *http.Response, err error) {
-  jsonValue, _ := json.Marshal(query)
-  apiURL := GetGraphQLApiURL(server)
-  req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonValue))
-  if err != nil {
-    log.Fatal("Failed while building the HTTP client: ", err)
-    return
-  }
-
-  // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
-
-  client := http.Client{}
-  return client.Do(req)
 }
