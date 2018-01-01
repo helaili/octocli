@@ -2,6 +2,7 @@ package api
 
 import (
   "fmt"
+  "github.com/helaili/octocli/api/client"
 )
 
 var userOrgsQuery = `query($login:String!, $count:Int!, $cursor:String) {
@@ -19,12 +20,7 @@ var userOrgsQuery = `query($login:String!, $count:Int!, $cursor:String) {
 }`
 
 type UserOrgsResponseHandler struct {
-}
-
-func (this *UserOrgsResponseHandler) Print(jsonObj map[string]interface{})  {
-  for _, org := range jsonObj {
-    fmt.Printf("Name: %s\n", org)
-  }
+  client.BasicGraphQLResponseHandler
 }
 
 func (this *UserOrgsResponseHandler) TableHeader() []string {
@@ -33,7 +29,7 @@ func (this *UserOrgsResponseHandler) TableHeader() []string {
 
 func (this *UserOrgsResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
   table := [][]string{}
-  nodes := getNodes(jsonObj, []string{"data", "user", "organizations"})
+  nodes := this.GetNodes(jsonObj, []string{"data", "user", "organizations"})
   for _, org := range nodes {
     row := []string{fmt.Sprintf("%v", org.(map[string]interface{})["name"])}
     table = append(table, row)
@@ -45,9 +41,8 @@ func (this *UserOrgsResponseHandler) PageInfoPath() []string {
   return []string{"data", "user", "organizations"}
 }
 
-
 func GetUserOrgs(server, token, user string) {
   params := map[string]interface{}{"login" : user}
   orgHandler := UserOrgsResponseHandler{}
-  DoGraphQLApiCall(server, token, userOrgsQuery, params, &orgHandler)
+  client.DoGraphQLApiCall(server, token, userOrgsQuery, params, &orgHandler)
 }

@@ -1,4 +1,4 @@
-package api
+package client
 
 import (
   "os"
@@ -72,15 +72,6 @@ func doPaginatedGraphQLApiCall(server, token, query string, params map[string]in
       params["cursor"] = endCursor
       doPaginatedGraphQLApiCall(server, token, query, params, table, responseHandler)
     }
-  }
-}
-
-// Navigate the JSON response to retrive the 'nodes' array
-func getNodes(jsonObj map[string]interface{}, path []string) ([]interface{}) {
-  if(len(path) == 0) {
-    return jsonObj["nodes"].([]interface{})
-  } else {
-    return getNodes(jsonObj[path[0]].(map[string]interface{}), path[1:])
   }
 }
 

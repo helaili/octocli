@@ -2,15 +2,10 @@ package api
 
 import (
   "fmt"
+  "github.com/helaili/octocli/api/client"
 )
 
 type OrgResponseHandler struct {
-}
-
-func (this *OrgResponseHandler) Print(jsonArray []map[string]interface{})  {
-  for _, org := range jsonArray {
-    fmt.Printf("%s | %d | %s", org["login"], org["id"], org["description"])
-  }
 }
 
 func (this *OrgResponseHandler) TableHeader() []string {
@@ -27,7 +22,7 @@ func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) []
 }
 
 func GetAllOrgs(server, token string) {
-  apiURL := GetRestApiURL(server, "organizations")
+  apiURL := client.GetRestApiURL(server, "organizations")
   orgHandler := OrgResponseHandler{}
-  DoRestApiCall(apiURL, token, &orgHandler)
+  client.DoRestApiCall(apiURL, token, &orgHandler)
 }
