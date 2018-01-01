@@ -1,11 +1,13 @@
 package api
 
 import (
+  "os"
   "fmt"
   "log"
   "net/http"
   "encoding/json"
   "regexp"
+  "github.com/olekukonko/tablewriter"
 )
 
 var linkListRegex = regexp.MustCompile("<([A-Za-z0-9\\:\\.\\/\\=\\?\\{\\}]*)>; rel=\"([A-Za-z]*)\"")
@@ -19,6 +21,13 @@ func GetRestApiURL(server, restPath string) (string) {
 }
 
 func DoRestApiCall(apiURL, token string, responseHandler RestResponseHandler) {
+  table := tablewriter.NewWriter(os.Stdout)
+  table.SetHeader(responseHandler.TableHeader())
+  doPaginatedRestApiCall(apiURL, token, table, responseHandler)
+  table.Render()
+}
+
+func doPaginatedRestApiCall(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
   req, err := http.NewRequest("GET", apiURL, nil)
   if err != nil {
     log.Fatal("Failed while building the HTTP client: ", err)
@@ -49,7 +58,8 @@ func DoRestApiCall(apiURL, token string, responseHandler RestResponseHandler) {
     log.Fatal("Error while decoding the server response.", decodeError)
     return
   } else  {
-    responseHandler.Print(jsonObj)
+    table.AppendBulk(responseHandler.TableRows(jsonObj))
+
     // Working the pagination as described in https://developer.github.com/guides/traversing-with-pagination/
     // linkHeader is '<https://gheserver.com/api/v3/users?since=35>; rel="next", <https://gheserver.com/api/v3/users{?since}>; rel="first"'
     linkHeader := resp.Header.Get("Link")
@@ -63,7 +73,7 @@ func DoRestApiCall(apiURL, token string, responseHandler RestResponseHandler) {
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          DoRestApiCall(linkElement[1], token, responseHandler)
+          doPaginatedRestApiCall(linkElement[1], token, table, responseHandler)
           return
         }
 	    }

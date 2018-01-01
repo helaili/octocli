@@ -1,11 +1,13 @@
 package api
 
 import (
+  "os"
   "fmt"
   "log"
   "bytes"
   "net/http"
   "encoding/json"
+  "github.com/olekukonko/tablewriter"
 )
 
 type GraphQLQuery struct {
@@ -22,6 +24,13 @@ func GetGraphQLApiURL(server string) (string) {
 }
 
 func DoGraphQLApiCall(server, token, query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
+  table := tablewriter.NewWriter(os.Stdout)
+  table.SetHeader(responseHandler.TableHeader())
+  doPaginatedGraphQLApiCall(server, token, query, params, table, responseHandler)
+  table.Render()
+}
+
+func doPaginatedGraphQLApiCall(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) {
   if params["count"] == nil {
     params["count"] = 100
   }
@@ -57,15 +66,25 @@ func DoGraphQLApiCall(server, token, query string, params map[string]interface{}
     fmt.Printf("Error while decoding the server response: %s", decodeError)
     return
   } else {
-    responseHandler.Print(jsonObj)
+    table.AppendBulk(responseHandler.TableRows(jsonObj))
     hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.PageInfoPath())
     if hasNextPage {
       params["cursor"] = endCursor
-      DoGraphQLApiCall(server, token, query, params, responseHandler)
+      doPaginatedGraphQLApiCall(server, token, query, params, table, responseHandler)
     }
   }
 }
 
+// Navigate the JSON response to retrive the 'nodes' array
+func getNodes(jsonObj map[string]interface{}, path []string) ([]interface{}) {
+  if(len(path) == 0) {
+    return jsonObj["nodes"].([]interface{})
+  } else {
+    return getNodes(jsonObj[path[0]].(map[string]interface{}), path[1:])
+  }
+}
+
+// Navigate the JSON response to retrive the 'pageInfo' object and return its prorperies (hasNextPage and endCursor)
 func getPageInfo(jsonObj map[string]interface{}, path []string) (hasNextPage bool, endCursor string) {
   if(len(path) == 0) {
     pageInfo := jsonObj["pageInfo"].(map[string]interface{})
