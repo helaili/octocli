@@ -22,7 +22,7 @@ func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) []
 }
 
 func GetAllOrgs(server, token string) {
-  apiURL := client.GetRestApiURL(server, "organizations")
+  apiURL := client.GetRestApiURL(server, "/organizations")
   orgHandler := OrgResponseHandler{}
-  client.DoRestApiCall(apiURL, token, &orgHandler)
+  client.Get(apiURL, token, &orgHandler)
 }

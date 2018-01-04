@@ -3,7 +3,7 @@ package client
 import (
   "os"
   "fmt"
-  "log"
+  "strings"
   "net/http"
   "encoding/json"
   "regexp"
@@ -22,17 +22,17 @@ func GetRestApiURL(server, restPath string) (string) {
   }
 }
 
-func DoRestApiCall(apiURL, token string, responseHandler RestResponseHandler) {
+func Get(apiURL, token string, responseHandler RestResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
   table.SetHeader(responseHandler.TableHeader())
-  doPaginatedRestApiCall(apiURL, token, table, responseHandler)
+  paginatedGet(apiURL, token, table, responseHandler)
   table.Render()
 }
 
-func doPaginatedRestApiCall(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
+func paginatedGet(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
   req, err := http.NewRequest("GET", apiURL, nil)
   if err != nil {
-    log.Fatal("Failed while building the HTTP client: ", err)
+    fmt.Printf("Failed while building the HTTP client: %s", err)
     return
   }
 
@@ -43,10 +43,10 @@ func doPaginatedRestApiCall(apiURL, token string, table *tablewriter.Table, resp
   resp, err := client.Do(req)
 
   if err != nil {
-    log.Fatal("Error while querying the server.", err)
+    fmt.Printf("Error while querying the server: %s", err)
     return
   } else if resp.StatusCode != http.StatusOK {
-    log.Fatalf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
   }
 
   // Close when method returns
@@ -57,7 +57,7 @@ func doPaginatedRestApiCall(apiURL, token string, table *tablewriter.Table, resp
   // Decode the JSON array
   decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
   if decodeError != nil {
-    log.Fatal("Error while decoding the server response.", decodeError)
+    fmt.Printf("Error while decoding the server response: %s", decodeError)
     return
   } else  {
     table.AppendBulk(responseHandler.TableRows(jsonObj))
@@ -75,10 +75,46 @@ func doPaginatedRestApiCall(apiURL, token string, table *tablewriter.Table, resp
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          doPaginatedRestApiCall(linkElement[1], token, table, responseHandler)
+          paginatedGet(linkElement[1], token, table, responseHandler)
           return
         }
 	    }
     }
   }
+}
+
+func Post(apiURL, token, params string) map[string]interface{} {
+  req, err := http.NewRequest("POST", apiURL, strings.NewReader(params))
+  if err != nil {
+    fmt.Printf("Failed while building the HTTP client: %s", err)
+    return nil
+  }
+
+  // Provide authentication
+  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+
+  client := http.Client{}
+  resp, err := client.Do(req)
+
+  if err != nil {
+    fmt.Printf("Error while querying the server: %s", err)
+    return nil
+  } else if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+  }
+
+  // Close when method returns
+  defer resp.Body.Close()
+
+  var jsonObj map[string]interface{}
+
+  // Decode the JSON array
+  decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
+  if decodeError != nil {
+    fmt.Printf("Error while decoding the server response: %s", decodeError)
+    return nil
+  } else  {
+    return jsonObj
+  }
+
 }
