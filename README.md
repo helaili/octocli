@@ -16,6 +16,25 @@ List every org a given user belong to:
 octocli org list --user monalisaoctocat
 ```
 
+More information with `octocli --help`
+
+```
+Usage:
+  octocli [command]
+
+Available Commands:
+  help        Help about any command
+  org         Base for various GitHub Organizations related commands
+
+Flags:
+      --config string   config file (default is $HOME/.octocli.yaml)
+  -h, --help            help for octocli
+  -s, --server string   Hostname of the GitHub Enterprise server. Using github.com if omitted (default "github.com")
+  -t, --token string    personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set
+
+Use "octocli [command] --help" for more information about a command.
+```
+
 ### Contribute
 
 
