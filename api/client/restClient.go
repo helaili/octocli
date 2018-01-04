@@ -13,6 +13,8 @@ import (
 var linkListRegex = regexp.MustCompile("<([A-Za-z0-9\\:\\.\\/\\=\\?\\{\\}]*)>; rel=\"([A-Za-z]*)\"")
 
 func GetRestApiURL(server, restPath string) (string) {
+  // Remove leading `/` if provided.
+  restPath = strings.TrimPrefix(restPath, "/")
   if server == "github.com" {
     return fmt.Sprintf("https://api.%s/%s", server, restPath)
   } else {
