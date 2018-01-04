@@ -23,14 +23,14 @@ func GetGraphQLApiURL(server string) (string) {
   }
 }
 
-func DoGraphQLApiCall(server, token, query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
+func GraphQLPost(server, token, query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
   table.SetHeader(responseHandler.TableHeader())
-  doPaginatedGraphQLApiCall(server, token, query, params, table, responseHandler)
+  doPaginatedGraphQLPost(server, token, query, params, table, responseHandler)
   table.Render()
 }
 
-func doPaginatedGraphQLApiCall(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) {
+func doPaginatedGraphQLPost(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) {
   if params["count"] == nil {
     params["count"] = 100
   }
@@ -70,7 +70,7 @@ func doPaginatedGraphQLApiCall(server, token, query string, params map[string]in
     hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.PageInfoPath())
     if hasNextPage {
       params["cursor"] = endCursor
-      doPaginatedGraphQLApiCall(server, token, query, params, table, responseHandler)
+      doPaginatedGraphQLPost(server, token, query, params, table, responseHandler)
     }
   }
 }

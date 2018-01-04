@@ -44,5 +44,5 @@ func (this *UserOrgsResponseHandler) PageInfoPath() []string {
 func GetUserOrgs(server, token, user string) {
   params := map[string]interface{}{"login" : user}
   orgHandler := UserOrgsResponseHandler{}
-  client.DoGraphQLApiCall(server, token, userOrgsQuery, params, &orgHandler)
+  client.GraphQLPost(server, token, userOrgsQuery, params, &orgHandler)
 }

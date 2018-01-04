@@ -24,5 +24,5 @@ func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) []
 func GetAllOrgs(server, token string) {
   apiURL := client.GetRestApiURL(server, "/organizations")
   orgHandler := OrgResponseHandler{}
-  client.Get(apiURL, token, &orgHandler)
+  client.RestGet(apiURL, token, &orgHandler)
 }

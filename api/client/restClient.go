@@ -22,14 +22,14 @@ func GetRestApiURL(server, restPath string) (string) {
   }
 }
 
-func Get(apiURL, token string, responseHandler RestResponseHandler) {
+func RestGet(apiURL, token string, responseHandler RestResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
   table.SetHeader(responseHandler.TableHeader())
-  paginatedGet(apiURL, token, table, responseHandler)
+  paginatedRestGet(apiURL, token, table, responseHandler)
   table.Render()
 }
 
-func paginatedGet(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
+func paginatedRestGet(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
   req, err := http.NewRequest("GET", apiURL, nil)
   if err != nil {
     fmt.Printf("Failed while building the HTTP client: %s", err)
@@ -75,7 +75,7 @@ func paginatedGet(apiURL, token string, table *tablewriter.Table, responseHandle
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          paginatedGet(linkElement[1], token, table, responseHandler)
+          paginatedRestGet(linkElement[1], token, table, responseHandler)
           return
         }
 	    }
@@ -83,7 +83,7 @@ func paginatedGet(apiURL, token string, table *tablewriter.Table, responseHandle
   }
 }
 
-func Post(apiURL, token, params string) map[string]interface{} {
+func RestPost(apiURL, token, params string) map[string]interface{} {
   req, err := http.NewRequest("POST", apiURL, strings.NewReader(params))
   if err != nil {
     fmt.Printf("Failed while building the HTTP client: %s", err)
