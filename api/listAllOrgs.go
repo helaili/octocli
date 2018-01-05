@@ -9,13 +9,17 @@ type OrgResponseHandler struct {
 }
 
 func (this *OrgResponseHandler) TableHeader() []string {
-  return []string{"login", "description"}
+  return []string{"login", "email", "location", "description"}
 }
 
 func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) [][]string {
   table := [][]string{}
   for _, org := range jsonArray {
-    row := []string{fmt.Sprintf("%v", org["login"]), fmt.Sprintf("%v", org["description"])}
+    row := []string{
+      fmt.Sprintf("%v", org["login"]),
+      fmt.Sprintf("%v", org["email"]),
+      fmt.Sprintf("%v", org["location"]), 
+      fmt.Sprintf("%v", org["description"])}
     table = append(table, row)
   }
   return table

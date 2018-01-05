@@ -14,6 +14,9 @@ var userOrgsQuery = `query($login:String!, $count:Int!, $cursor:String) {
       }
       nodes {
         name
+        email
+        location
+        description
       }
     }
   }
@@ -24,14 +27,18 @@ type UserOrgsResponseHandler struct {
 }
 
 func (this *UserOrgsResponseHandler) TableHeader() []string {
-  return []string{"name"}
+  return []string{"name", "email", "location", "description"}
 }
 
 func (this *UserOrgsResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
   table := [][]string{}
   nodes := this.GetNodes(jsonObj, this.ResultPath())
   for _, org := range nodes {
-    row := []string{fmt.Sprintf("%v", org.(map[string]interface{})["name"])}
+    row := []string{
+      fmt.Sprintf("%v", org.(map[string]interface{})["name"]),
+      fmt.Sprintf("%v", org.(map[string]interface{})["email"]),
+      fmt.Sprintf("%v", org.(map[string]interface{})["location"]),
+      fmt.Sprintf("%v", org.(map[string]interface{})["description"])}
     table = append(table, row)
   }
   return table
