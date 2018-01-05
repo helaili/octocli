@@ -34,7 +34,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.octocli.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
+	rootCmd.PersistentFlags().StringVarP(&token, "token", "k", "", "personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "github.com", "Hostname of the GitHub Enterprise server. Using github.com if omitted")
 	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
   viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))

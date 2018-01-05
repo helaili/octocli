@@ -6,8 +6,6 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
-var org string
-
 // listCmd represents the list command
 var listTeamsCmd = &cobra.Command{
 	Use:   "list",

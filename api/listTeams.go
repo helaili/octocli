@@ -15,6 +15,7 @@ var listTeamsQuery = `query($login:String!, $count:Int!, $cursor:String) {
       }
       nodes {
         name
+        slug
         description
       }
     }
@@ -26,7 +27,7 @@ type ListTeamsQueryResponseHandler struct {
 }
 
 func (this *ListTeamsQueryResponseHandler) TableHeader() []string {
-  return []string{"name", "description"}
+  return []string{"name", "slug", "description"}
 }
 
 func (this *ListTeamsQueryResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
@@ -35,6 +36,7 @@ func (this *ListTeamsQueryResponseHandler) TableRows(jsonObj map[string]interfac
   for _, org := range nodes {
     row := []string{
       fmt.Sprintf("%v", org.(map[string]interface{})["name"]),
+      fmt.Sprintf("%v", org.(map[string]interface{})["slug"]),
       fmt.Sprintf("%v", org.(map[string]interface{})["description"])}
     table = append(table, row)
   }
@@ -45,8 +47,8 @@ func (this *ListTeamsQueryResponseHandler) ResultPath() []string {
   return []string{"data", "organization", "teams"}
 }
 
-func GetTeams(server, token, user string) {
-  params := map[string]interface{}{"login" : user}
+func GetTeams(server, token, org string) {
+  params := map[string]interface{}{"login" : org}
   handler := ListTeamsQueryResponseHandler{}
   client.GraphQLPost(server, token, listTeamsQuery, params, &handler)
 }
