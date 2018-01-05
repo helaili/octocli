@@ -29,7 +29,7 @@ func (this *UserOrgsResponseHandler) TableHeader() []string {
 
 func (this *UserOrgsResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
   table := [][]string{}
-  nodes := this.GetNodes(jsonObj, []string{"data", "user", "organizations"})
+  nodes := this.GetNodes(jsonObj, this.ResultPath())
   for _, org := range nodes {
     row := []string{fmt.Sprintf("%v", org.(map[string]interface{})["name"])}
     table = append(table, row)
@@ -37,7 +37,7 @@ func (this *UserOrgsResponseHandler) TableRows(jsonObj map[string]interface{}) [
   return table
 }
 
-func (this *UserOrgsResponseHandler) PageInfoPath() []string {
+func (this *UserOrgsResponseHandler) ResultPath() []string {
   return []string{"data", "user", "organizations"}
 }
 

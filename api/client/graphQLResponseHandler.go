@@ -3,7 +3,7 @@ package client
 type GraphQLResponseHandler interface {
   ResponseHandler
   TableRows(jsonObj map[string]interface{}) [][]string
-  PageInfoPath() []string
+  ResultPath() []string
 }
 
 type BasicGraphQLResponseHandler struct {

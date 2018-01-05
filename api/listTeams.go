@@ -31,7 +31,7 @@ func (this *ListTeamsQueryResponseHandler) TableHeader() []string {
 
 func (this *ListTeamsQueryResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
   table := [][]string{}
-  nodes := this.GetNodes(jsonObj, this.PageInfoPath())
+  nodes := this.GetNodes(jsonObj, this.ResultPath())
   for _, org := range nodes {
     row := []string{
       fmt.Sprintf("%v", org.(map[string]interface{})["name"]),
@@ -41,7 +41,7 @@ func (this *ListTeamsQueryResponseHandler) TableRows(jsonObj map[string]interfac
   return table
 }
 
-func (this *ListTeamsQueryResponseHandler) PageInfoPath() []string {
+func (this *ListTeamsQueryResponseHandler) ResultPath() []string {
   return []string{"data", "organization", "teams"}
 }
 

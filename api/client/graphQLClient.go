@@ -67,7 +67,7 @@ func doPaginatedGraphQLPost(server, token, query string, params map[string]inter
     return
   } else {
     table.AppendBulk(responseHandler.TableRows(jsonObj))
-    hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.PageInfoPath())
+    hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.ResultPath())
     if hasNextPage {
       params["cursor"] = endCursor
       doPaginatedGraphQLPost(server, token, query, params, table, responseHandler)
