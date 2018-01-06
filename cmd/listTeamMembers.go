@@ -1,6 +1,3 @@
-// Copyright © 2018 Alain Hélaïli <helaili@github.com>
-
-
 package cmd
 
 import (
@@ -9,15 +6,13 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
-var team string
-
 // listCmd represents the list command
 var listTeamMembersCmd = &cobra.Command{
 	Use:   "list",
 	TraverseChildren: true,
 	Short: "List members of a team",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.GetTeamMembers(server, viper.GetString("token"), org, team)
+		api.PrintTeamMembers(server, viper.GetString("token"), org, team)
 	},
 }
 

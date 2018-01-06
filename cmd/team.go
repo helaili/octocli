@@ -4,9 +4,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-var org string
-
 // teamCmd represents the team command
 var teamCmd = &cobra.Command{
 	Use:   "team",

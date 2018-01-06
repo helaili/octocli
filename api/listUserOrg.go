@@ -48,8 +48,8 @@ func (this *UserOrgsResponseHandler) ResultPath() []string {
   return []string{"data", "user", "organizations"}
 }
 
-func GetUserOrgs(server, token, user string) {
+func PrintUserOrgs(server, token, user string) {
   params := map[string]interface{}{"login" : user}
   orgHandler := UserOrgsResponseHandler{}
-  client.GraphQLPost(server, token, userOrgsQuery, params, &orgHandler)
+  client.GraphQLQueryAndPrintTable(server, token, userOrgsQuery, params, &orgHandler)
 }

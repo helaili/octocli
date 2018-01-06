@@ -47,8 +47,8 @@ func (this *ListTeamsQueryResponseHandler) ResultPath() []string {
   return []string{"data", "organization", "teams"}
 }
 
-func GetTeams(server, token, org string) {
+func PrintTeams(server, token, org string) {
   params := map[string]interface{}{"login" : org}
   handler := ListTeamsQueryResponseHandler{}
-  client.GraphQLPost(server, token, listTeamsQuery, params, &handler)
+  client.GraphQLQueryAndPrintTable(server, token, listTeamsQuery, params, &handler)
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
-var user string
-
 // listOrgsCmd represents the list command
 var listOrgsCmd = &cobra.Command{
 	Use:   "list",
@@ -19,9 +17,9 @@ which the specified user belongs to`,
 		if server == "github.com" && user == "" {
 			log.Fatal("Browsing all the organizations on github.com is not allowed.")
 		} else if user != "" {
-			api.GetUserOrgs(server, viper.GetString("token"), user)
+			api.PrintUserOrgs(server, viper.GetString("token"), user)
 		} else {
-			api.GetAllOrgs(server, viper.GetString("token"))
+			api.PrintAllOrgs(server, viper.GetString("token"))
 		}
 	},
 }

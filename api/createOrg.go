@@ -8,7 +8,7 @@ import (
 func CreateOrg(server, token, name, owner, profileName string) {
   apiURL := client.GetRestApiURL(server, "/admin/organizations")
   params := fmt.Sprintf("{ \"login\": \"%s\", \"admin\": \"%s\", \"profile_name\": \"%s\"}", name, owner, profileName)
-  result := client.RestPost(apiURL, token, params)
+  result := client.RestPostForObject(apiURL, token, params)
   if result != nil {
     fmt.Printf("Congratulations!!! Organization %s was created susccesfully.\n", result["login"])
   }

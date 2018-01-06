@@ -18,15 +18,15 @@ func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) []
     row := []string{
       fmt.Sprintf("%v", org["login"]),
       fmt.Sprintf("%v", org["email"]),
-      fmt.Sprintf("%v", org["location"]), 
+      fmt.Sprintf("%v", org["location"]),
       fmt.Sprintf("%v", org["description"])}
     table = append(table, row)
   }
   return table
 }
 
-func GetAllOrgs(server, token string) {
+func PrintAllOrgs(server, token string) {
   apiURL := client.GetRestApiURL(server, "/organizations")
   orgHandler := OrgResponseHandler{}
-  client.RestGet(apiURL, token, &orgHandler)
+  client.RestGetAndPrintTable(apiURL, token, &orgHandler)
 }

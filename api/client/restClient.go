@@ -22,31 +22,21 @@ func GetRestApiURL(server, restPath string) (string) {
   }
 }
 
-func RestGet(apiURL, token string, responseHandler RestResponseHandler) {
+func RestGetAndPrintTable(apiURL, token string, responseHandler RestResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
   table.SetHeader(responseHandler.TableHeader())
-  paginatedRestGet(apiURL, token, table, responseHandler)
+  paginatedRestGetAndPrintTable(apiURL, token, table, responseHandler)
   table.Render()
 }
 
-func paginatedRestGet(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
-  req, err := http.NewRequest("GET", apiURL, nil)
-  if err != nil {
-    fmt.Printf("Failed while building the HTTP client: %s", err)
-    return
-  }
-
-  // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
-
-  client := http.Client{}
-  resp, err := client.Do(req)
+func paginatedRestGetAndPrintTable(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
+  resp, err := RestQuery(apiURL, token, "GET", "", nil)
 
   if err != nil {
-    fmt.Printf("Error while querying the server: %s", err)
+    fmt.Printf("Error while querying the server: %s\n", err)
     return
   } else if resp.StatusCode != http.StatusOK {
-    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode))
   }
 
   // Close when method returns
@@ -75,7 +65,7 @@ func paginatedRestGet(apiURL, token string, table *tablewriter.Table, responseHa
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          paginatedRestGet(linkElement[1], token, table, responseHandler)
+          paginatedRestGetAndPrintTable(linkElement[1], token, table, responseHandler)
           return
         }
 	    }
@@ -83,24 +73,27 @@ func paginatedRestGet(apiURL, token string, table *tablewriter.Table, responseHa
   }
 }
 
-func RestPost(apiURL, token, params string) map[string]interface{} {
-  req, err := http.NewRequest("POST", apiURL, strings.NewReader(params))
+func RestPostForObject(apiURL, token, params string) map[string]interface{} {
+  return RestQueryForObject(apiURL, token, "POST", params)
+}
+
+func RestGetForObject(apiURL, token string) map[string]interface{} {
+  return RestQueryForObject(apiURL, token, "GET", "")
+}
+
+func RestGetForArray(apiURL, token string) []map[string]interface{} {
+  return RestQueryForArray(apiURL, token, "GET", "")
+}
+
+
+func RestQueryForObject(apiURL, token, verb, params string) map[string]interface{} {
+  resp, err := RestQuery(apiURL, token, verb, params, nil)
   if err != nil {
-    fmt.Printf("Failed while building the HTTP client: %s", err)
-    return nil
-  }
-
-  // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
-
-  client := http.Client{}
-  resp, err := client.Do(req)
-
-  if err != nil {
-    fmt.Printf("Error while querying the server: %s", err)
+    fmt.Printf("Error while querying the server: %s\n", err)
     return nil
   } else if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode))
+    return nil
   }
 
   // Close when method returns
@@ -116,5 +109,47 @@ func RestPost(apiURL, token, params string) map[string]interface{} {
   } else  {
     return jsonObj
   }
+}
 
+
+func RestQueryForArray(apiURL, token, verb, params string) []map[string]interface{} {
+  resp, err := RestQuery(apiURL, token, verb, params, nil)
+  if err != nil {
+    fmt.Printf("Error while querying the server: %s\n", err)
+    return nil
+  } else if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode))
+    return nil
+  }
+
+  // Close when method returns
+  defer resp.Body.Close()
+
+  var jsonObj []map[string]interface{}
+
+  // Decode the JSON array
+  decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
+  if decodeError != nil {
+    fmt.Printf("Error while decoding the server response: %s", decodeError)
+    return nil
+  } else  {
+    return jsonObj
+  }
+}
+
+func RestQuery(apiURL, token, verb, params string, headers map[string]string) (resp *http.Response, err error) {
+  req, err := http.NewRequest(verb, apiURL, strings.NewReader(params))
+  if err != nil {
+    return nil, err
+  }
+
+  // Provide authentication
+  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+  // Add other headers
+  for header, value := range headers {
+    req.Header.Add(header, value)
+  }
+
+  client := http.Client{}
+  return client.Do(req)
 }

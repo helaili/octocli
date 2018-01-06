@@ -11,7 +11,7 @@ var listTeamsCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List teams within an organization",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.GetTeams(server, viper.GetString("token"), org)
+		api.PrintTeams(server, viper.GetString("token"), org)
 	},
 }
 
