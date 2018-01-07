@@ -21,7 +21,7 @@ var addTeamMembersCmd = &cobra.Command{
 
 func init() {
 	teamMembersCmd.AddCommand(addTeamMembersCmd)
-	addTeamMembersCmd.Flags().StringVarP(&team, "team", "t", "", "The team's name")
+	addTeamMembersCmd.Flags().StringVarP(&team, "team", "t", "", "The team's slug")
 	addTeamMembersCmd.MarkFlagRequired("team")
 	addTeamMembersCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
 	addTeamMembersCmd.MarkFlagRequired("org")
