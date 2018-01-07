@@ -22,6 +22,7 @@ var addTeamMembersCmd = &cobra.Command{
 			api.AddTeamMembers(server, viper.GetString("token"), org, team, members, role)
 		} else {
 			fmt.Printf("%s is not a valid role. Accepted values are 'member' and 'maintainer'\n", role)
+			return 
 		}
 	},
 }

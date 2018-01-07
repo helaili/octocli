@@ -8,7 +8,6 @@ import (
 )
 
 var owner string
-var name string
 var profileName string
 
 // createCmd represents the create command
