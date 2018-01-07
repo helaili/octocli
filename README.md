@@ -1,6 +1,18 @@
 # octocli
 A CLI for GitHub
 
+Current commands include:
+
+- Orgs
+  - List every org a user belongs to
+  - List every orgs (GHE)
+- Teams
+  - List every teams of an org
+  - Create a team
+  - Add a member to a team
+  - List every member of a team
+  - List every repository of a team 
+
 
 ### Usage:
 
@@ -25,6 +37,7 @@ Usage:
 Available Commands:
   help        Help about any command
   org         Base for various GitHub Organizations related commands
+  team        Base for various team related commands
 
 Flags:
       --config string   config file (default is $HOME/.octocli.yaml)
