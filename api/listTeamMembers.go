@@ -34,13 +34,17 @@ func (this *ListTeamMembersQueryResponseHandler) TableHeader() []string {
 func (this *ListTeamMembersQueryResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
   table := [][]string{}
   nodes := this.GetNodes(jsonObj, this.ResultPath())
-  for _, org := range nodes {
-    row := []string{
-      fmt.Sprintf("%v", org.(map[string]interface{})["login"]),
-      fmt.Sprintf("%v", org.(map[string]interface{})["name"])}
-    table = append(table, row)
+  if nodes != nil {
+    for _, org := range nodes {
+      row := []string{
+        fmt.Sprintf("%v", org.(map[string]interface{})["login"]),
+        fmt.Sprintf("%v", org.(map[string]interface{})["name"])}
+      table = append(table, row)
+    }
+    return table
+  } else {
+    return nil
   }
-  return table
 }
 
 func (this *ListTeamMembersQueryResponseHandler) ResultPath() []string {

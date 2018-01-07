@@ -3,8 +3,8 @@ package client
 import (
   "os"
   "fmt"
-  "log"
   "bytes"
+  "errors"
   "net/http"
   "encoding/json"
   "github.com/olekukonko/tablewriter"
@@ -26,11 +26,15 @@ func GetGraphQLApiURL(server string) (string) {
 func GraphQLQueryAndPrintTable(server, token, query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
   table.SetHeader(responseHandler.TableHeader())
-  paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
-  table.Render()
+  err := paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
+  if err != nil {
+    fmt.Println(err)
+  } else {
+    table.Render()
+  }
 }
 
-func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) {
+func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) error {
   if params["count"] == nil {
     params["count"] = 100
   }
@@ -39,8 +43,7 @@ func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[
   apiURL := GetGraphQLApiURL(server)
   req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonValue))
   if err != nil {
-    log.Fatal("Failed while building the HTTP client: ", err)
-    return
+    return errors.New(fmt.Sprintf("Failed while building the HTTP client: %s\n", err))
   }
 
   // Provide authentication
@@ -49,11 +52,9 @@ func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[
   client := http.Client{}
   resp, err := client.Do(req)
   if err != nil {
-    log.Fatal("Error while querying the server.", err)
-    return
+    return errors.New(fmt.Sprintf("Error while querying the server: %s\n", err))
   } else if resp.StatusCode != http.StatusOK {
-    log.Fatalf("Ooops... sorry, server sent a %d HTTP status code: %s", resp.StatusCode, http.StatusText(resp.StatusCode))
-    return
+    return errors.New(fmt.Sprintf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode)))
   }
 
   // Close when method returns
@@ -64,14 +65,21 @@ func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[
   // Decode the JSON array
   decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
   if decodeError != nil {
-    fmt.Printf("Error while decoding the server response: %s", decodeError)
-    return
+    return errors.New(fmt.Sprintf("Error while decoding the server response: %s\n", decodeError))
   } else {
-    table.AppendBulk(responseHandler.TableRows(jsonObj))
+    rows := responseHandler.TableRows(jsonObj)
+
+    if rows == nil {
+      return errors.New("Data access problem. Please check your input values")
+    }
+
+    table.AppendBulk(rows)
     hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.ResultPath())
     if hasNextPage {
       params["cursor"] = endCursor
-      paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
+      return paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
+    } else {
+      return nil
     }
   }
 }
@@ -86,7 +94,11 @@ func getPageInfo(jsonObj map[string]interface{}, path []string) (hasNextPage boo
       return false, ""
     }
   } else {
-    return getPageInfo(jsonObj[path[0]].(map[string]interface{}), path[1:])
+    if jsonObj[path[0]] != nil {
+      return getPageInfo(jsonObj[path[0]].(map[string]interface{}), path[1:])
+    } else {
+      return false, ""
+    }
   }
 }
 
@@ -97,7 +109,7 @@ func GraphQLQuery(server, token, query string, params map[string]interface{}) (r
   apiURL := GetGraphQLApiURL(server)
   req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonValue))
   if err != nil {
-    log.Fatal("Failed while building the HTTP client: ", err)
+    fmt.Printf("Failed while building the HTTP client: %s\n", err)
     return
   }
 
@@ -112,10 +124,10 @@ func GraphQLQuery(server, token, query string, params map[string]interface{}) (r
 func GraphQLQueryObject(server, token, query string, params map[string]interface{}) map[string]interface{} {
   resp, err := GraphQLQuery(server, token, query, params)
   if err != nil {
-    log.Fatal("Error while querying the server.\n", err)
+    fmt.Printf("Error while querying the server: %s\n", err)
     return nil
   } else if resp.StatusCode != http.StatusOK {
-    log.Fatalf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode))
+    fmt.Printf("Ooops... sorry, server sent a %d HTTP status code: %s\n", resp.StatusCode, http.StatusText(resp.StatusCode))
     return nil
   }
 

@@ -14,7 +14,11 @@ func (this *BasicGraphQLResponseHandler) GetNodes(jsonObj map[string]interface{}
   if(len(path) == 0) {
     return jsonObj["nodes"].([]interface{})
   } else {
-    return this.GetNodes(jsonObj[path[0]].(map[string]interface{}), path[1:])
+    if jsonObj[path[0]] != nil {
+      return this.GetNodes(jsonObj[path[0]].(map[string]interface{}), path[1:])
+    } else {
+      return nil
+    }
   }
 }
 

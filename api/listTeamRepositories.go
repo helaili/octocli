@@ -37,6 +37,11 @@ func PrintTeamRepositories(server, token, org, teamSlug string) {
   // Need to figure out the team ID
   teamObj := GetRestTeam(server, token, org, teamSlug)
 
+  if teamObj == nil || teamObj["id"] == nil {
+    fmt.Printf("Couldn't find a team with slug %s\n", teamSlug)
+    return
+  }
+
   apiURL := client.GetRestApiURL(server, fmt.Sprintf("/teams/%d/repos", int(teamObj["id"].(float64))))
   handler := TeamRepositoriesResponseHandler{}
   client.RestGetAndPrintTable(apiURL, token, &handler)
