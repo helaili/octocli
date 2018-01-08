@@ -29,5 +29,5 @@ func init() {
 	createTeamCmd.Flags().StringVarP(&name, "name", "n", "", "The team's name")
 	createTeamCmd.MarkFlagRequired("name")
 	createTeamCmd.Flags().StringVarP(&description, "description", "d", "", "The team's description")
-	createTeamCmd.Flags().StringVarP(&privacy, "privacy", "p", "secret", "The level of privacy this team should have: secret (default) or closed")
+	createTeamCmd.Flags().StringVarP(&privacy, "privacy", "p", "secret", "The level of privacy this team should have: secret or closed")
 }
