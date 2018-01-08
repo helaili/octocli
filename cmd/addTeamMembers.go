@@ -14,15 +14,15 @@ var role string
 
 // listCmd represents the list command
 var addTeamMembersCmd = &cobra.Command{
-	Use:   "add",
+	Use:   "add [space separated list of members]",
 	Args: cobra.MinimumNArgs(1),
-	Short: "Add members to a team",
+	Short: "Add one or more members to a team",
 	Run: func(cmd *cobra.Command, members []string) {
 		if role == "member" || role == "maintainer" {
 			api.AddTeamMembers(server, viper.GetString("token"), org, team, members, role)
 		} else {
 			fmt.Printf("%s is not a valid role. Accepted values are 'member' and 'maintainer'\n", role)
-			return 
+			return
 		}
 	},
 }
@@ -33,5 +33,5 @@ func init() {
 	addTeamMembersCmd.MarkFlagRequired("team")
 	addTeamMembersCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
 	addTeamMembersCmd.MarkFlagRequired("org")
-	addTeamMembersCmd.Flags().StringVarP(&role, "role", "r", "member", "User role, member (default) or maintainer")
+	addTeamMembersCmd.Flags().StringVarP(&role, "role", "r", "member", "User role, member or maintainer")
 }

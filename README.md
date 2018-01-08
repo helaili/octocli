@@ -28,6 +28,12 @@ List every org a given user belong to:
 octocli org list --user monalisaoctocat
 ```
 
+Add users `monalisa` and `hubot` as maintainers to the `developers` team within the OctoCheese organization
+
+```
+octocli team members add -o OctoCheese -t developers -r maintainer monalisa hubot
+```
+
 More information with `octocli --help`
 
 ```
@@ -50,7 +56,7 @@ Use "octocli [command] --help" for more information about a command.
 
 ### Contribute
 
-Have a look at `release.sh` 
+Have a look at `release.sh`
 
 Run tests:
 
