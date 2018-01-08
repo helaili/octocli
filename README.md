@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/helaili/octocli.svg?branch=master)](https://travis-ci.org/helaili/octocli)
+
+
 # octocli
 A CLI for GitHub
 
