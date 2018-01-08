@@ -8,9 +8,10 @@ func TestGetRestApiURL(t *testing.T) {
 	}{
 		{"github.com", "organizations", "https://api.github.com/organizations"},
 		{"github.com", "/organizations", "https://api.github.com/organizations"},
-		{"githubinc.com", "/admin/organizations", "https://githubinc.com/api/v3/admin/organizations}",
+		{"githubinc.com", "/admin/organizations", "https://githubinc.com/api/v3/admin/organizations"},
 		{"githubinc.com", "organizations", "https://githubinc.com/api/v3/organizations"},
 	}
+
 	for _, c := range cases {
 		got := GetRestApiURL(c.server, c.restPath)
 		if got != c.want {
