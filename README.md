@@ -22,13 +22,13 @@ List every org on a GitHub Enterprise server:
 octocli org list -s octodemo.com
 ```
 
-List every org a given user belong to:
+List every org user `monalisa` belongs to:
 
 ```
-octocli org list --user monalisaoctocat
+octocli org list --user monalisa
 ```
 
-Add users `monalisa` and `hubot` as maintainers to the `developers` team within the OctoCheese organization
+Add users `monalisa` and `hubot` as maintainers to the `developers` team within the `OctoCheese` organization
 
 ```
 octocli team members add -o OctoCheese -t developers -r maintainer monalisa hubot
