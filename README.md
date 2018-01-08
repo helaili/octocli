@@ -11,7 +11,7 @@ Current commands include:
   - Create a team
   - Add a member to a team
   - List every member of a team
-  - List every repository of a team 
+  - List every repository of a team
 
 
 ### Usage:
@@ -50,15 +50,7 @@ Use "octocli [command] --help" for more information about a command.
 
 ### Contribute
 
-
-Dependencies:
-
-```
-go get github.com/mitchellh/go-homedir
-go get github.com/spf13/cobra
-go get github.com/spf13/viper
-go get github.com/olekukonko/tablewriter
-```
+Have a look at `release.sh` 
 
 Run tests:
 
