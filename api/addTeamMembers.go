@@ -20,7 +20,6 @@ func decodeSuccessfulResponse(resp *http.Response) (success TeamMembershipSucces
   // Decode the JSON array
   decodeError := json.NewDecoder(resp.Body).Decode(&jsonObj)
   if decodeError != nil {
-    fmt.Printf("Error while decoding the error object: %s\n", decodeError)
     return TeamMembershipSuccess{}, decodeError
   } else  {
     return jsonObj, nil
@@ -47,8 +46,12 @@ func AddTeamMembers(server, token, org, teamSlug string, members []string, role 
         successMessage, err := decodeSuccessfulResponse(resp)
         if err == nil {
           fmt.Printf("%s was succesfully added to %s/%s as a %s with status %s\n", member, org, teamSlug, successMessage.Role, successMessage.State)
+        } else {
+          fmt.Printf("Couldn't add user %s: %s\n", member, err)
         }
       }
     }
+  } else {
+    fmt.Println("Wrong org or team - please use the team's slug as seen in the URL (lowercase, no space...)")
   }
 }
