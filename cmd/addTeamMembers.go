@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -19,7 +18,7 @@ var addTeamMembersCmd = &cobra.Command{
 	Short: "Add one or more members to a team",
 	Run: func(cmd *cobra.Command, members []string) {
 		if role == "member" || role == "maintainer" {
-			api.AddTeamMembers(server, viper.GetString("token"), org, team, members, role)
+			api.AddTeamMembers(org, team, members, role)
 		} else {
 			fmt.Printf("%s is not a valid role. Accepted values are 'member' and 'maintainer'\n", role)
 			return

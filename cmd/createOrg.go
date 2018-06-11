@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -20,7 +19,7 @@ This command only works on GitHub Enterprise`,
 		if server == "github.com" && user == "" {
 			fmt.Println("Creating an organization on github.com is not allowed.")
 		} else {
-			api.CreateOrg(server, viper.GetString("token"), name, owner, profileName)
+			api.CreateOrg(name, owner, profileName)
 		}
 	},
 }

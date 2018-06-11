@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -14,7 +13,7 @@ var auditRepoCmd = &cobra.Command{
 	TraverseChildren: true,
 	Short: "Audit access to a repository",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintRepoAudit(server, viper.GetString("token"), user, name, isGitHubber)
+		api.PrintRepoAudit(user, name, isGitHubber)
 	},
 }
 

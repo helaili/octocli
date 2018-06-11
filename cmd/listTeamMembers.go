@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -12,7 +11,7 @@ var listTeamMembersCmd = &cobra.Command{
 	TraverseChildren: true,
 	Short: "List members of a team",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintTeamMembers(server, viper.GetString("token"), org, team)
+		api.PrintTeamMembers(org, team)
 	},
 }
 

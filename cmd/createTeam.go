@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -18,7 +17,7 @@ var createTeamCmd = &cobra.Command{
 			fmt.Printf("%s is not a valid privacy setting. Accepted values are 'secret' and 'closed'\n", privacy)
 			return
 		}
-		api.CreateTeam(server, viper.GetString("token"), org, name, description, privacy)
+		api.CreateTeam(org, name, description, privacy)
 	},
 }
 

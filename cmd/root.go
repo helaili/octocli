@@ -9,6 +9,7 @@ import (
 )
 
 var cfgFile, token, server, team, org, user, name string
+var markdown bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -34,10 +35,15 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.octocli.yaml)")
+
 	rootCmd.PersistentFlags().StringVarP(&token, "token", "k", "", "Personal authentication token to use. Required when environement variable GITHUB_AUTH_TOKEN is not set")
-	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "github.com", "Hostname of the GitHub Enterprise server. Using github.com if omitted")
 	viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-  viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))
+
+	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "github.com", "Hostname of the GitHub Enterprise server. Using github.com if omitted")
+	viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))
+
+	rootCmd.PersistentFlags().BoolVarP(&markdown, "markdown", "m", false, "Use markdown for output")
+	viper.BindPFlag("markdown", rootCmd.PersistentFlags().Lookup("markdown"))
 
 	if os.Getenv("GITHUB_AUTH_TOKEN") == "" {
 		rootCmd.MarkPersistentFlagRequired("token")

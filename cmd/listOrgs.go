@@ -3,7 +3,6 @@ package cmd
 import (
 	"log"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -17,9 +16,9 @@ which the specified user belongs to`,
 		if server == "github.com" && user == "" {
 			log.Fatal("Browsing all the organizations on github.com is not allowed.")
 		} else if user != "" {
-			api.PrintUserOrgs(server, viper.GetString("token"), user)
+			api.PrintUserOrgs(user)
 		} else {
-			api.PrintAllOrgs(server, viper.GetString("token"))
+			api.PrintAllOrgs()
 		}
 	},
 }

@@ -8,6 +8,7 @@ import (
   "strings"
   "net/http"
   "encoding/json"
+  "github.com/spf13/viper"
   "github.com/olekukonko/tablewriter"
 )
 
@@ -24,10 +25,16 @@ func GetGraphQLApiURL(server string) (string) {
   }
 }
 
-func GraphQLQueryAndPrintTable(server, token, query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
+func GraphQLQueryAndPrintTable(query string, params map[string]interface{}, responseHandler GraphQLResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
+
+  if viper.GetBool("markdown") {
+    table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+    table.SetCenterSeparator("|")
+  }
+
   table.SetHeader(responseHandler.TableHeader())
-  err := paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
+  err := paginatedGraphQLQueryAndPrintTable(query, params, table, responseHandler)
   if err != nil {
     fmt.Println(err)
   } else {
@@ -35,20 +42,20 @@ func GraphQLQueryAndPrintTable(server, token, query string, params map[string]in
   }
 }
 
-func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) error {
+func paginatedGraphQLQueryAndPrintTable(query string, params map[string]interface{}, table *tablewriter.Table, responseHandler GraphQLResponseHandler) error {
   if params["count"] == nil {
     params["count"] = 100
   }
   graphQLQuery := GQLQuery{query, params}
   jsonValue, _ := json.Marshal(graphQLQuery)
-  apiURL := GetGraphQLApiURL(server)
+  apiURL := GetGraphQLApiURL(viper.GetString("server"))
   req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonValue))
   if err != nil {
     return errors.New(fmt.Sprintf("Failed while building the HTTP client: %s\n", err))
   }
 
   // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", viper.GetString("token")))
 
   client := http.Client{}
   resp, err := client.Do(req)
@@ -85,7 +92,7 @@ func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[
     hasNextPage, endCursor := getPageInfo(jsonObj, responseHandler.ResultPath())
     if hasNextPage {
       params["cursor"] = endCursor
-      return paginatedGraphQLQueryAndPrintTable(server, token, query, params, table, responseHandler)
+      return paginatedGraphQLQueryAndPrintTable(query, params, table, responseHandler)
     } else {
       return nil
     }
@@ -111,10 +118,10 @@ func getPageInfo(jsonObj map[string]interface{}, path []string) (hasNextPage boo
 }
 
 
-func GraphQLQuery(server, token, query string, params map[string]interface{}) (resp *http.Response, err error) {
+func GraphQLQuery(query string, params map[string]interface{}) (resp *http.Response, err error) {
   graphQLQuery := GQLQuery{query, params}
   jsonValue, _ := json.Marshal(graphQLQuery)
-  apiURL := GetGraphQLApiURL(server)
+  apiURL := GetGraphQLApiURL(viper.GetString("server"))
   req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(jsonValue))
   if err != nil {
     fmt.Printf("Failed while building the HTTP client: %s\n", err)
@@ -122,15 +129,15 @@ func GraphQLQuery(server, token, query string, params map[string]interface{}) (r
   }
 
   // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", viper.GetString("token")))
 
   client := http.Client{}
   return client.Do(req)
 }
 
 
-func GraphQLQueryObject(server, token, query string, params map[string]interface{}) map[string]interface{} {
-  resp, err := GraphQLQuery(server, token, query, params)
+func GraphQLQueryObject(query string, params map[string]interface{}) map[string]interface{} {
+  resp, err := GraphQLQuery(query, params)
   if err != nil {
     fmt.Printf("Error while querying the server: %s\n", err)
     return nil

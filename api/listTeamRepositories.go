@@ -33,16 +33,16 @@ func (this *TeamRepositoriesResponseHandler) TableRows(jsonArray []map[string]in
   return table
 }
 
-func PrintTeamRepositories(server, token, org, teamSlug string) {
+func PrintTeamRepositories(org, teamSlug string) {
   // Need to figure out the team ID
-  teamObj := GetRestTeam(server, token, org, teamSlug)
+  teamObj := GetRestTeam(org, teamSlug)
 
   if teamObj == nil || teamObj["id"] == nil {
     fmt.Printf("Couldn't find a team with slug %s\n", teamSlug)
     return
   }
 
-  apiURL := client.GetRestApiURL(server, fmt.Sprintf("/teams/%d/repos", int(teamObj["id"].(float64))))
+  apiURL := client.GetRestApiURL(fmt.Sprintf("/teams/%d/repos", int(teamObj["id"].(float64))))
   handler := TeamRepositoriesResponseHandler{}
-  client.RestGetAndPrintTable(apiURL, token, &handler)
+  client.RestGetAndPrintTable(apiURL, &handler)
 }
