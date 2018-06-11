@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -17,16 +18,16 @@ var createTeamCmd = &cobra.Command{
 			fmt.Printf("%s is not a valid privacy setting. Accepted values are 'secret' and 'closed'\n", privacy)
 			return
 		}
-		api.CreateTeam(org, name, description, privacy)
+		api.CreateTeam(viper.GetString("org"), viper.GetString("name"), viper.GetString("description"), viper.GetString("privacy"))
 	},
 }
 
 func init() {
 	teamCmd.AddCommand(createTeamCmd)
-	createTeamCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
+	createTeamCmd.Flags().StringP("org", "o", "", "The parent organization's name")
 	createTeamCmd.MarkFlagRequired("org")
-	createTeamCmd.Flags().StringVarP(&name, "name", "n", "", "The team's name")
+	createTeamCmd.Flags().StringP("name", "n", "", "The team's name")
 	createTeamCmd.MarkFlagRequired("name")
-	createTeamCmd.Flags().StringVarP(&description, "description", "d", "", "The team's description")
-	createTeamCmd.Flags().StringVarP(&privacy, "privacy", "p", "secret", "The level of privacy this team should have: secret or closed")
+	createTeamCmd.Flags().StringP("description", "d", "", "The team's description")
+	createTeamCmd.Flags().StringP("privacy", "p", "secret", "The level of privacy this team should have: secret or closed")
 }

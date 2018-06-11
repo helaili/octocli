@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -11,14 +12,14 @@ var listTeamRepositoriesCmd = &cobra.Command{
 	TraverseChildren: true,
 	Short: "List a team's repositories",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintTeamRepositories(org, team)
+		api.PrintTeamRepositories(viper.GetString("org"), viper.GetString("team"))
 	},
 }
 
 func init() {
 	teamRepositoriesCmd.AddCommand(listTeamRepositoriesCmd)
-	listTeamRepositoriesCmd.Flags().StringVarP(&team, "team", "t", "", "The team's name")
+	listTeamRepositoriesCmd.Flags().StringP("team", "t", "", "The team's name")
 	listTeamRepositoriesCmd.MarkFlagRequired("team")
-	listTeamRepositoriesCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
+	listTeamRepositoriesCmd.Flags().StringP("org", "o", "", "The parent organization's name")
 	listTeamRepositoriesCmd.MarkFlagRequired("org")
 }

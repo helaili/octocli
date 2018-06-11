@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -11,14 +12,14 @@ var listTeamMembersCmd = &cobra.Command{
 	TraverseChildren: true,
 	Short: "List members of a team",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintTeamMembers(org, team)
+		api.PrintTeamMembers(viper.GetString("org"), viper.GetString("team"))
 	},
 }
 
 func init() {
 	teamMembersCmd.AddCommand(listTeamMembersCmd)
-	listTeamMembersCmd.Flags().StringVarP(&team, "team", "t", "", "The team's name")
+	listTeamMembersCmd.Flags().StringP("team", "t", "", "The team's name")
 	listTeamMembersCmd.MarkFlagRequired("team")
-	listTeamMembersCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
+	listTeamMembersCmd.Flags().StringP("org", "o", "", "The parent organization's name")
 	listTeamMembersCmd.MarkFlagRequired("org")
 }

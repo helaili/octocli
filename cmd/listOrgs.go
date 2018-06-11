@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
 )
 
@@ -13,7 +14,8 @@ var listOrgsCmd = &cobra.Command{
 	Long: `List all organizations when nothing is specified, or list the Organizations
 which the specified user belongs to`,
   Run: func(cmd *cobra.Command, args []string) {
-		if server == "github.com" && user == "" {
+		user := viper.GetString("user")
+		if viper.GetString("server") == "github.com" && user == "" {
 			log.Fatal("Browsing all the organizations on github.com is not allowed.")
 		} else if user != "" {
 			api.PrintUserOrgs(user)
@@ -25,5 +27,5 @@ which the specified user belongs to`,
 
 func init() {
 	orgCmd.AddCommand(listOrgsCmd)
-	listOrgsCmd.Flags().StringVarP(&user, "user", "u", "", "Only retrieves organizations which this user belongs to")
+	listOrgsCmd.Flags().StringP("user", "u", "", "Only retrieves organizations which this user belongs to")
 }
