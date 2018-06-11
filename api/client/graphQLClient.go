@@ -5,6 +5,7 @@ import (
   "fmt"
   "bytes"
   "errors"
+  "strings"
   "net/http"
   "encoding/json"
   "github.com/olekukonko/tablewriter"
@@ -70,7 +71,14 @@ func paginatedGraphQLQueryAndPrintTable(server, token, query string, params map[
     rows := responseHandler.TableRows(jsonObj)
 
     if rows == nil {
-      return errors.New("Data access problem. Please check your input values")
+      if jsonObj["errors"] != nil && jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"] != nil {
+        // SSO enabled, the token needs to be whitlisted
+        return errors.New(fmt.Sprintf("%s Navigate to the following URL to whitelist your personal access token: %s",
+                          jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"],
+                          strings.TrimPrefix(resp.Header.Get("X-GitHub-SSO"), "required; url=")))
+      } else {
+        return errors.New("Data access problem. Please check your input values")
+      }
     }
 
     table.AppendBulk(rows)
