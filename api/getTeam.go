@@ -19,17 +19,17 @@ var getTeamQuery = `query($login:String!, $slug:String!) {
 }`
 
 // Get a team with a GraphQL call
-func GetTeam(server, token, org, slug string) map[string]interface{} {
+func GetTeam(org, slug string) map[string]interface{} {
   params := map[string]interface{}{"login" : org, "slug" : slug}
-  graphQLResponse := client.GraphQLQueryObject(server, token, getTeamQuery, params)
+  graphQLResponse := client.GraphQLQueryObject(getTeamQuery, params)
   handler := client.BasicGraphQLResponseHandler{}
   return handler.GetObject(graphQLResponse, []string{"data", "organization", "team"})
 }
 
 // Get a team with a Rest call - id through REST is different than the GraphQL id
-func GetRestTeam(server, token, org, slug string) map[string]interface{} {
-  apiURL := client.GetRestApiURL(server, fmt.Sprintf("/orgs/%s/teams", org))
-  teams := client.RestGetForArray(apiURL, token)
+func GetRestTeam(org, slug string) map[string]interface{} {
+  apiURL := client.GetRestApiURL(fmt.Sprintf("/orgs/%s/teams", org))
+  teams := client.RestGetForArray(apiURL)
   // You can't get one single team, so you need to find the one your're looking for
   for _, team := range teams {
     if team["slug"].(string) == slug {

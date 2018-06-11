@@ -25,8 +25,8 @@ func (this *OrgResponseHandler) TableRows(jsonArray []map[string]interface{}) []
   return table
 }
 
-func PrintAllOrgs(server, token string) {
-  apiURL := client.GetRestApiURL(server, "/organizations")
+func PrintAllOrgs() {
+  apiURL := client.GetRestApiURL("/organizations")
   orgHandler := OrgResponseHandler{}
-  client.RestGetAndPrintTable(apiURL, token, &orgHandler)
+  client.RestGetAndPrintTable(apiURL, &orgHandler)
 }

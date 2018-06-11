@@ -62,9 +62,9 @@ func (this *RepoAuditResponseHandler) ResultPath() []string {
   return []string{"data", "repository", "mentionableUsers"}
 }
 
-func PrintRepoAudit(server, token, user, name string, isGitHubber bool) {
+func PrintRepoAudit(user, name string, isGitHubber bool) {
   params := map[string]interface{}{"name" : name, "owner": user}
   handler := RepoAuditResponseHandler{}
   handler.isGitHubber = isGitHubber
-  client.GraphQLQueryAndPrintTable(server, token, repoAuditQuery, params, &handler)
+  client.GraphQLQueryAndPrintTable(repoAuditQuery, params, &handler)
 }

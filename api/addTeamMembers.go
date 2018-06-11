@@ -26,14 +26,14 @@ func decodeSuccessfulResponse(resp *http.Response) (success TeamMembershipSucces
   }
 }
 
-func AddTeamMembers(server, token, org, teamSlug string, members []string, role string) {
+func AddTeamMembers(org, teamSlug string, members []string, role string) {
   // Need to figure out the team ID
-  teamObj := GetRestTeam(server, token, org, teamSlug)
+  teamObj := GetRestTeam(org, teamSlug)
 
   if teamObj != nil && teamObj["id"] != nil {
     for _, member := range members {
-      apiURL := client.GetRestApiURL(server, fmt.Sprintf("/teams/%d/memberships/%s", int(teamObj["id"].(float64)), member ))
-      resp, err := client.RestQuery(apiURL, token, "PUT", fmt.Sprintf("{\"role\" : \"%s\" }", role), nil)
+      apiURL := client.GetRestApiURL(fmt.Sprintf("/teams/%d/memberships/%s", int(teamObj["id"].(float64)), member ))
+      resp, err := client.RestQuery(apiURL, "PUT", fmt.Sprintf("{\"role\" : \"%s\" }", role), nil)
 
       if err != nil {
         fmt.Println(err)

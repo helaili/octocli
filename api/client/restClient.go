@@ -7,30 +7,37 @@ import (
   "net/http"
   "encoding/json"
   "regexp"
+	"github.com/spf13/viper"
   "github.com/olekukonko/tablewriter"
 )
 
 var linkListRegex = regexp.MustCompile("<([A-Za-z0-9\\:\\.\\/\\=\\?\\{\\}]*)>; rel=\"([A-Za-z]*)\"")
 
-func GetRestApiURL(server, restPath string) (string) {
+func GetRestApiURL(restPath string) (string) {
   // Remove leading `/` if provided.
   restPath = strings.TrimPrefix(restPath, "/")
-  if server == "github.com" {
-    return fmt.Sprintf("https://api.%s/%s", server, restPath)
+  if viper.GetString("server") == "github.com" {
+    return fmt.Sprintf("https://api.%s/%s", viper.GetString("server"), restPath)
   } else {
-    return fmt.Sprintf("https://%s/api/v3/%s", server, restPath)
+    return fmt.Sprintf("https://%s/api/v3/%s", viper.GetString("server"), restPath)
   }
 }
 
-func RestGetAndPrintTable(apiURL, token string, responseHandler RestResponseHandler) {
+func RestGetAndPrintTable(apiURL string, responseHandler RestResponseHandler) {
   table := tablewriter.NewWriter(os.Stdout)
+
+  if viper.GetBool("markdown") {
+    table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+    table.SetCenterSeparator("|")
+  }
+
   table.SetHeader(responseHandler.TableHeader())
-  paginatedRestGetAndPrintTable(apiURL, token, table, responseHandler)
+  paginatedRestGetAndPrintTable(apiURL, table, responseHandler)
   table.Render()
 }
 
-func paginatedRestGetAndPrintTable(apiURL, token string, table *tablewriter.Table, responseHandler RestResponseHandler) {
-  resp, err := RestQuery(apiURL, token, "GET", "", nil)
+func paginatedRestGetAndPrintTable(apiURL string, table *tablewriter.Table, responseHandler RestResponseHandler) {
+  resp, err := RestQuery(apiURL, "GET", "", nil)
 
   if err != nil {
     fmt.Printf("Error while querying the server: %s\n", err)
@@ -65,7 +72,7 @@ func paginatedRestGetAndPrintTable(apiURL, token string, table *tablewriter.Tabl
 
       for _, linkElement := range linkArray {
         if linkElement[2] == "next" {
-          paginatedRestGetAndPrintTable(linkElement[1], token, table, responseHandler)
+          paginatedRestGetAndPrintTable(linkElement[1], table, responseHandler)
           return
         }
 	    }
@@ -73,21 +80,21 @@ func paginatedRestGetAndPrintTable(apiURL, token string, table *tablewriter.Tabl
   }
 }
 
-func RestPostForObject(apiURL, token, params string) map[string]interface{} {
-  return RestQueryForObject(apiURL, token, "POST", params)
+func RestPostForObject(apiURL, params string) map[string]interface{} {
+  return RestQueryForObject(apiURL, "POST", params)
 }
 
-func RestGetForObject(apiURL, token string) map[string]interface{} {
-  return RestQueryForObject(apiURL, token, "GET", "")
+func RestGetForObject(apiURL string) map[string]interface{} {
+  return RestQueryForObject(apiURL, "GET", "")
 }
 
-func RestGetForArray(apiURL, token string) []map[string]interface{} {
-  return RestQueryForArray(apiURL, token, "GET", "")
+func RestGetForArray(apiURL string) []map[string]interface{} {
+  return RestQueryForArray(apiURL, "GET", "")
 }
 
 
-func RestQueryForObject(apiURL, token, verb, params string) map[string]interface{} {
-  resp, err := RestQuery(apiURL, token, verb, params, nil)
+func RestQueryForObject(apiURL, verb, params string) map[string]interface{} {
+  resp, err := RestQuery(apiURL, verb, params, nil)
   if err != nil {
     fmt.Printf("Error while querying the server: %s\n", err)
     return nil
@@ -112,8 +119,8 @@ func RestQueryForObject(apiURL, token, verb, params string) map[string]interface
 }
 
 
-func RestQueryForArray(apiURL, token, verb, params string) []map[string]interface{} {
-  resp, err := RestQuery(apiURL, token, verb, params, nil)
+func RestQueryForArray(apiURL, verb, params string) []map[string]interface{} {
+  resp, err := RestQuery(apiURL, verb, params, nil)
   if err != nil {
     fmt.Printf("Error while querying the server: %s\n", err)
     return nil
@@ -137,14 +144,14 @@ func RestQueryForArray(apiURL, token, verb, params string) []map[string]interfac
   }
 }
 
-func RestQuery(apiURL, token, verb, params string, headers map[string]string) (resp *http.Response, err error) {
+func RestQuery(apiURL, verb, params string, headers map[string]string) (resp *http.Response, err error) {
   req, err := http.NewRequest(verb, apiURL, strings.NewReader(params))
   if err != nil {
     return nil, err
   }
 
   // Provide authentication
-  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+  req.Header.Add("Authorization", fmt.Sprintf("bearer %s", viper.GetString("token")))
   // Add other headers
   for header, value := range headers {
     req.Header.Add(header, value)
