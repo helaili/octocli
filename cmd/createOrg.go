@@ -7,6 +7,8 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
+var createOrgCmdLogin, createOrgCmdOrg, createOrgCmdDisplay string
+
 // createCmd represents the create organization command
 var createOrgCmd = &cobra.Command{
 	Use:   "create",
@@ -17,17 +19,16 @@ This command only works on GitHub Enterprise`,
 		if viper.GetString("server") == "github.com" {
 			fmt.Println("Creating an organization on github.com is not allowed.")
 		} else {
-			api.CreateOrg(viper.GetString("name"), viper.GetString("owner"), viper.GetString("display"))
+			api.CreateOrg(createOrgCmdOrg, createOrgCmdLogin, createOrgCmdDisplay)
 		}
 	},
 }
 
 func init() {
 	orgCmd.AddCommand(createOrgCmd)
-	createOrgCmd.Flags().StringP("owner", "o", "", "The organization owner's handle")
-	createOrgCmd.Flags().StringP("name", "n", "", "The organization's name")
-	createOrgCmd.Flags().StringP("display", "d", "", "The organization's display name")
-
-	createOrgCmd.MarkFlagRequired("owner")
-	createOrgCmd.MarkFlagRequired("name")
+	createOrgCmd.Flags().StringVarP(&createOrgCmdLogin, "login", "l", "", "The organization owner's handle")
+	createOrgCmd.MarkFlagRequired("login")
+	createOrgCmd.Flags().StringVarP(&createOrgCmdOrg, "org", "o", "", "The organization's name")
+	createOrgCmd.MarkFlagRequired("org")
+	createOrgCmd.Flags().StringVarP(&createOrgCmdDisplay, "display", "d", "", "The organization's display name")
 }
