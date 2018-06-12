@@ -11,12 +11,13 @@ var listReposCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List repos within an organization",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintRepos(viper.GetString("owner"))
+		api.PrintRepos(viper.GetString("org"))
 	},
 }
 
 func init() {
 	repoCmd.AddCommand(listReposCmd)
-	listReposCmd.Flags().StringP("owner", "o", "", "The name of the parent user or organization")
-	listReposCmd.MarkFlagRequired("onwer")
+	listReposCmd.Flags().StringP("org", "o", "", "The name of the parent user or organization")
+	viper.BindPFlag("org", listReposCmd.Flags().Lookup("org"))
+	listReposCmd.MarkFlagRequired("org")
 }

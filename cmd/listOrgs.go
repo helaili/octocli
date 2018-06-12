@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/helaili/octocli/api"
@@ -16,7 +16,7 @@ which the specified user belongs to`,
   Run: func(cmd *cobra.Command, args []string) {
 		user := viper.GetString("user")
 		if viper.GetString("server") == "github.com" && user == "" {
-			log.Fatal("Browsing all the organizations on github.com is not allowed.")
+			fmt.Println("Browsing all the organizations on github.com is not allowed.")
 		} else if user != "" {
 			api.PrintUserOrgs(user)
 		} else {
