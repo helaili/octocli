@@ -24,11 +24,15 @@ var repoAuditQuery = `query($name:String!, $owner:String!, $count:Int!, $cursor:
 
 type RepoAuditResponseHandler struct {
   client.BasicGraphQLResponseHandler
-  isGitHubber bool
+  showIsGitHubber bool
 }
 
 func (this *RepoAuditResponseHandler) TableHeader() []string {
-  return []string{"login", "name", "email", "GitHubber"}
+  if this.showIsGitHubber {
+    return []string{"login", "name", "email", "GitHubber"}
+  } else {
+    return []string{"login", "name", "email"}
+  }
 }
 
 func (this *RepoAuditResponseHandler) TableRows(jsonObj map[string]interface{}) [][]string {
@@ -38,7 +42,7 @@ func (this *RepoAuditResponseHandler) TableRows(jsonObj map[string]interface{}) 
   if nodes != nil {
     var row []string
     for _, org := range nodes {
-      if this.isGitHubber {
+      if this.showIsGitHubber {
         row = []string{
           fmt.Sprintf("%v", org.(map[string]interface{})["login"]),
           fmt.Sprintf("%v", org.(map[string]interface{})["name"]),
@@ -62,9 +66,9 @@ func (this *RepoAuditResponseHandler) ResultPath() []string {
   return []string{"data", "repository", "mentionableUsers"}
 }
 
-func PrintRepoAudit(user, name string, isGitHubber bool) {
+func PrintRepoAudit(user, name string, showIsGitHubber bool) {
   params := map[string]interface{}{"name" : name, "owner": user}
   handler := RepoAuditResponseHandler{}
-  handler.isGitHubber = isGitHubber
+  handler.showIsGitHubber = showIsGitHubber
   client.GraphQLQueryAndPrintTable(repoAuditQuery, params, &handler)
 }

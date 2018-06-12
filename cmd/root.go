@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile, token, server, team, org, user, name string
+var cfgFile, token, server string
 var markdown bool
 
 // rootCmd represents the base command when called without any subcommands

@@ -5,17 +5,19 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
+var listTeamsCmdOrg string
+
 // listCmd represents the list command
 var listTeamsCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List teams within an organization",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.PrintTeams(org)
+		api.PrintTeams(listTeamsCmdOrg)
 	},
 }
 
 func init() {
 	teamCmd.AddCommand(listTeamsCmd)
-	listTeamsCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
+	listTeamsCmd.Flags().StringVarP(&listTeamsCmdOrg, "org", "o", "", "The parent organization's name")
 	listTeamsCmd.MarkFlagRequired("org")
 }

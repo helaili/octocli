@@ -28,7 +28,7 @@ octocli org list -s octodemo.com
 List every org user `monalisa` belongs to:
 
 ```
-octocli org list --user monalisa
+octocli org list --login monalisa
 ```
 
 Add users `monalisa` and `hubot` as maintainers to the `developers` team within the `OctoCheese` organization

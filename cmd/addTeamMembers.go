@@ -9,7 +9,7 @@ import (
 	"github.com/helaili/octocli/api"
 )
 
-var role string
+var addTeamMembersCmdTeam, addTeamMembersCmdOrg, addTeamMembersCmdRole string
 
 // listCmd represents the list command
 var addTeamMembersCmd = &cobra.Command{
@@ -17,10 +17,10 @@ var addTeamMembersCmd = &cobra.Command{
 	Args: cobra.MinimumNArgs(1),
 	Short: "Add one or more members to a team",
 	Run: func(cmd *cobra.Command, members []string) {
-		if role == "member" || role == "maintainer" {
-			api.AddTeamMembers(org, team, members, role)
+		if addTeamMembersCmdRole == "member" || addTeamMembersCmdRole == "maintainer" {
+			api.AddTeamMembers(addTeamMembersCmdOrg, addTeamMembersCmdTeam, members, addTeamMembersCmdRole)
 		} else {
-			fmt.Printf("%s is not a valid role. Accepted values are 'member' and 'maintainer'\n", role)
+			fmt.Printf("%s is not a valid role. Accepted values are 'member' and 'maintainer'\n", addTeamMembersCmdRole)
 			return
 		}
 	},
@@ -28,9 +28,9 @@ var addTeamMembersCmd = &cobra.Command{
 
 func init() {
 	teamMembersCmd.AddCommand(addTeamMembersCmd)
-	addTeamMembersCmd.Flags().StringVarP(&team, "team", "t", "", "The team's slug")
+	addTeamMembersCmd.Flags().StringVarP(&addTeamMembersCmdTeam, "team", "t", "", "The team's slug")
 	addTeamMembersCmd.MarkFlagRequired("team")
-	addTeamMembersCmd.Flags().StringVarP(&org, "org", "o", "", "The parent organization's name")
+	addTeamMembersCmd.Flags().StringVarP(&addTeamMembersCmdOrg, "org", "o", "", "The parent organization's name")
 	addTeamMembersCmd.MarkFlagRequired("org")
-	addTeamMembersCmd.Flags().StringVarP(&role, "role", "r", "member", "User role, member or maintainer")
+	addTeamMembersCmd.Flags().StringVarP(&addTeamMembersCmdRole, "role", "r", "member", "User role, member or maintainer")
 }
