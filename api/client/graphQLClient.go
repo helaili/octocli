@@ -79,10 +79,14 @@ func paginatedGraphQLQueryAndPrintTable(query string, params map[string]interfac
 
     if rows == nil {
       if jsonObj["errors"] != nil && jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"] != nil {
-        // SSO enabled, the token needs to be whitlisted
-        return errors.New(fmt.Sprintf("%s Navigate to the following URL to whitelist your personal access token: %s",
-                          jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"],
-                          strings.TrimPrefix(resp.Header.Get("X-GitHub-SSO"), "required; url=")))
+        if resp.Header.Get("X-GitHub-SSO") != "" {
+          // SSO enabled, the token needs to be whitlisted
+          return errors.New(fmt.Sprintf("%s Navigate to the following URL to whitelist your personal access token: %s",
+                            jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"],
+                            strings.TrimPrefix(resp.Header.Get("X-GitHub-SSO"), "required; url=")))
+        } else {
+          return errors.New(jsonObj["errors"].([]interface {})[0].(map[string]interface{})["message"].(string))
+        }
       } else {
         return errors.New("Data access problem. Please check your input values")
       }
