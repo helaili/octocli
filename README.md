@@ -16,9 +16,12 @@ Current commands include:
   - List every member of a team
   - List every repository of a team
 
+### Installation:
+```
+go get github.com/helaili/octocli
+```
 
 ### Usage:
-
 List every org on a GitHub Enterprise server:
 
 ```
