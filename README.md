@@ -17,6 +17,13 @@ Current commands include:
   - List every repository of a team
 
 ### Installation:
+
+- Download [here](https://github.com/helaili/octocli/releases) an officilal release and unzip it,
+
+or 
+
+- Retriveve the latest development version with the command :point_down: 
+
 ```
 go get github.com/helaili/octocli
 ```
